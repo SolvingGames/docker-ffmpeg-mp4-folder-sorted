@@ -57,12 +57,12 @@ stream_videos() {
             echo "Preparing to stream file: $file"
 
             ffmpeg -re -nostdin \
-              -analyzeduration 10M -probesize 10M \
+              -thread_queue_size 1024 \
               -i "$file" \
               -map 0:v:0 -map 0:a:0 \
-              -c:v libx264 -preset ultrafast -tune zerolatency \
-              -b:v 6000k -maxrate 6000k -bufsize 12000k -g 120 \
-              -c:a aac -b:a 160k -ar 44100 -ac 2 \
+              -c:v copy -bsf:v h264_mp4toannexb \
+              -c:a aac -b:a 128k -ar 44100 -ac 2 \
+              -max_muxing_queue_size 1024 \
               -flvflags no_duration_filesize \
               -f tee "$TEE_TARGETS"
         done
