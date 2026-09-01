@@ -17,30 +17,30 @@ stream_videos() {
     echo "Kick Stream URL: ${KICK_STREAM_URL}"
     echo "Kick Stream Key: ${KICK_STREAM_KEY}"
 
-    # Loop through all MP4 files in the video directory
+    # Loop through all MP4/MKV files sorted naturally (-V)
     find "${VIDEO_DIR}" -type f \( -iname '*.mp4' -o -iname '*.mkv' \) | sort -V | while read -r file; do
         echo "Preparing to stream file: $file"
 
-        # Base ffmpeg command setup
-        local FFMPEG_CMD="ffmpeg -re -nostdin -i \"$file\" -map 0:v:0 -map 0:a:0? -c:v libx264 -preset veryfast -crf 23 -maxrate 4500k -bufsize 9000k -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -vf \"scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2\" -r 30"
+        # Base ffmpeg command setup with escaped filters
+        local FFMPEG_CMD="ffmpeg -re -nostdin -i \"$file\" -map 0:v:0 -map 0:a:0? -c:v libx264 -preset veryfast -crf 23 -maxrate 4500k -bufsize 9000k -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2' -r 30"
 
         # Initializing tee muxer command with empty streams array
         local TEE_CMD="-f tee"
         local STREAMS=()
 
-        # Configure stream for Twitch if a stream key is provided
+        # Configure stream for Twitch (Frankfurt Server)
         if [ -n "${TWITCH_STREAM_KEY}" ]; then
             echo "Configuring stream for Twitch"
-            STREAMS+=("[f=flv:onfail=ignore]rtmp://live-lax.twitch.tv/app/${TWITCH_STREAM_KEY}")
+            STREAMS+=("[f=flv:onfail=ignore]rtmp://fra02.contribute.live-video.net/app/${TWITCH_STREAM_KEY}")
         fi
 
-        # Configure stream for YouTube if an API key is provided
+        # Configure stream for YouTube
         if [ -n "${YOUTUBE_API_KEY}" ]; then
             echo "Configuring stream for YouTube"
             STREAMS+=("[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/${YOUTUBE_API_KEY}")
         fi
 
-        # Configure stream for Kick if both URL and key are provided
+        # Configure stream for Kick
         if [ -n "${KICK_STREAM_URL}" ] && [ -n "${KICK_STREAM_KEY}" ]; then
             echo "Configuring stream for Kick"
             STREAMS+=("[f=flv:onfail=ignore]${KICK_STREAM_URL}:443/app/${KICK_STREAM_KEY}")
@@ -64,12 +64,10 @@ stream_videos() {
     done
 }
 
-if find "${VIDEO_DIR}" -type f \( -name '*.mp4' -or -name '*.mkv' \) -print -quit | grep -q .; then
+if find "${VIDEO_DIR}" -type f \( -iname '*.mp4' -o -iname '*.mkv' \) -print -quit | grep -q .; then
     echo "Initiating stream_videos function..."
-    # Loop control variable
     LOOP_INDEFINITELY="${LOOP_INDEFINITELY:-false}"
 
-    echo "Initiating stream_videos function..."
     if [ "${LOOP_INDEFINITELY}" = "true" ]; then
         while true; do
             stream_videos
@@ -82,6 +80,3 @@ else
     echo "No Videos Found. Exiting..."
     exit 1
 fi
-
-
-
