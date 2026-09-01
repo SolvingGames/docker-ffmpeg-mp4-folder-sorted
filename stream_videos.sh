@@ -50,21 +50,19 @@ stream_videos() {
 
     # Main infinite stream loop
     while true; do
-        # Read files into array to avoid bash subshell pipe issues
+        # Read files into array to avoid subshell issues
         mapfile -t FILES < <(find "${VIDEO_DIR}" -type f \( -iname '*.mp4' -o -iname '*.mkv' \) | sort -V)
 
         for file in "${FILES[@]}"; do
             [ -f "$file" ] || continue
             echo "Preparing to stream file: $file"
 
-            ffmpeg -re \
-              -thread_queue_size 4096 \
-              -analyzeduration 10000000 -probesize 10000000 \
+            ffmpeg -thread_queue_size 5120 \
               -nostdin -i "$file" \
               -map 0:v:0 -map 0:a:0 \
               -c:v copy \
               -c:a aac -b:a 128k -ar 44100 -ac 2 \
-              -af "aresample=async=1:min_hard_comp=0.100000:first_pts=0" \
+              -max_muxing_queue_size 4096 \
               -flvflags no_duration_filesize \
               -f tee "$TEE_TARGETS"
         done
