@@ -23,7 +23,8 @@ stream_videos() {
 
         # Base ffmpeg command setup with escaped filters
         # local FFMPEG_CMD="ffmpeg -re -nostdin -i \"$file\" -map 0:v:0 -map 0:a:0? -c:v libx264 -preset ultrafast -tune zerolatency -threads 0 -filter_threads 0 -b:v 4500k -maxrate 4500k -bufsize 9000k -pix_fmt yuv420p -g 60 -r 30 -vsync cfr -c:a aac -b:a 128k -ar 44100 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2' -flvflags no_duration_filesize"
-        local FFMPEG_CMD="ffmpeg -re -nostdin -i \"$file\" -c:v copy -c:a aac -b:a 128k -ar 44100 -flvflags no_duration_filesize"
+        # local FFMPEG_CMD="ffmpeg -re -nostdin -i \"$file\" -c:v copy -c:a aac -b:a 128k -ar 44100 -flvflags no_duration_filesize"
+        local FFMPEG_CMD="ffmpeg -re -nostdin -i \"$file\" -map 0:v:0 -map 0:a:0? -c:v libx264 -preset ultrafast -tune zerolatency -threads 4 -b:v 4500k -maxrate 4500k -bufsize 4500k -pix_fmt yuv420p -g 60 -r 30 -c:a aac -b:a 128k -ar 44100 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2' -flvflags no_duration_filesize"
         
         # Initializing tee muxer command with empty streams array
         local TEE_CMD="-f tee"
