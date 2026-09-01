@@ -22,8 +22,8 @@ stream_videos() {
         echo "Preparing to stream file: $file"
 
         # Base ffmpeg command setup with escaped filters
-        local FFMPEG_CMD="ffmpeg -re -nostdin -i \"$file\" -map 0:v:0 -map 0:a:0? -c:v libx264 -preset veryfast -crf 23 -maxrate 4500k -bufsize 9000k -pix_fmt yuv420p -g 60 -c:a aac -b:a 128k -ar 44100 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2' -r 30"
-
+        local FFMPEG_CMD="ffmpeg -thread_queue_size 8124 -analyzeduration 10M -probesize 10M -re -nostdin -i \"$file\" -map 0:v:0 -map 0:a:0? -c:v libx264 -preset veryfast -crf 20 -maxrate 6000k -bufsize 18000k -pix_fmt yuv420p -g 60 -c:a aac -b:a 160k -ar 44100 -vf 'scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2' -r 30"
+        
         # Initializing tee muxer command with empty streams array
         local TEE_CMD="-f tee"
         local STREAMS=()
