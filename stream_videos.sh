@@ -52,10 +52,11 @@ stream_videos() {
     find "${VIDEO_DIR}" -type f \( -iname '*.mp4' -o -iname '*.mkv' \) | sort -V | while read -r file; do
         echo "Preparing to stream file: $file"
 
-        ffmpeg -re -nostdin -i "$file" \
+        ffmpeg -re -queue_size 1024 -nostdin -i "$file" \
           -map 0:v:0 -map 0:a:0 \
           -c:v copy \
-          -c:a aac -b:a 128k -ar 44100 -ac 2 -async 1 \
+          -c:a aac -b:a 128k -ar 44100 -ac 2 \
+          -af "aresample=async=1000" \
           -flvflags no_duration_filesize \
           -f tee "$TEE_TARGETS"
     done
