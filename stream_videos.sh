@@ -22,7 +22,7 @@ stream_videos() {
         echo "Preparing to stream file: $file"
 
         # Base ffmpeg command setup with escaped filters
-        local FFMPEG_CMD="ffmpeg -re -nostdin -i $file -map 0:v:0 -map 0:a:0 -c:v copy -c:a aac -b:a 128k -ar 44100 -ac 2 -flvflags no_duration_filesize"
+        local FFMPEG_CMD="ffmpeg -re -nostdin -i $file -map 0:v:0 -map 0:a:0 -c:v copy -c:a aac -b:a 128k -ar 44100 -ac 2 -async 1 -flvflags no_duration_filesize"
         
         # Initializing tee muxer command with empty streams array
         local TEE_CMD="-f tee"
