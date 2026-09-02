@@ -45,8 +45,10 @@ stream_videos() {
               -thread_queue_size 1024 \
               -i "$file" \
               -map 0:v:0 -map 0:a:0 \
-              -c:v copy -c:a copy \
+              -c:v copy \
+              -tag:v 0 \
               -bsf:v h264_mp4toannexb \
+              -c:a copy \
               -flvflags no_duration_filesize \
               -f tee "$TEE_TARGETS"
         done
