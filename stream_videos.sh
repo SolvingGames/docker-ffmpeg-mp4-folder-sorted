@@ -45,9 +45,10 @@ stream_videos() {
               -thread_queue_size 1024 \
               -i "$file" \
               -map 0:v:0 -map 0:a:0 \
-              -c:v copy -c:a copy \
-              -flvflags no_duration_filesize \
-              -f tee "$TEE_TARGETS"
+              -c:v copy -tag:v 7 \
+              -bsf:v h264_mp4toannexb \
+              -c:a copy \
+              -f flv "$TWITCH_URL" # Or test directly without tee first
         done
 
         echo "Finished video playlist loop. Restarting sequence in 2 seconds..."
