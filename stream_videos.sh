@@ -47,7 +47,7 @@ stream_videos() {
               -map 0:v:0 -map 0:a:0 \
               -c:v copy -tag:v 7 \
               -bsf:v h264_mp4toannexb \
-              -c:a copy \
+              -c:a copy -tag:a 0 \
               -flvflags no_duration_filesize \
               -f tee "$TEE_TARGETS"
         done
