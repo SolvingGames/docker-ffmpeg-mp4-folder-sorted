@@ -13,17 +13,17 @@ stream_videos() {
 
     if [ -n "${TWITCH_STREAM_KEY}" ]; then
         echo "Configuring stream for Twitch"
-        STREAMS+=("[f=flv:onfail=ignore:bsfs/v=h264_mp4toannexb]rtmp://fra02.contribute.live-video.net/app/${TWITCH_STREAM_KEY}")
+        STREAMS+=("[f=flv:onfail=ignore]rtmp://fra02.contribute.live-video.net/app/${TWITCH_STREAM_KEY}")
     fi
 
     if [ -n "${YOUTUBE_API_KEY}" ]; then
         echo "Configuring stream for YouTube"
-        STREAMS+=("[f=flv:onfail=ignore:bsfs/v=h264_mp4toannexb]rtmp://a.rtmp.youtube.com/live2/${YOUTUBE_API_KEY}")
+        STREAMS+=("[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/${YOUTUBE_API_KEY}")
     fi
 
     if [ -n "${KICK_STREAM_URL}" ] && [ -n "${KICK_STREAM_KEY}" ]; then
         echo "Configuring stream for Kick"
-        STREAMS+=("[f=flv:onfail=ignore:bsfs/v=h264_mp4toannexb]${KICK_STREAM_URL}:443/app/${KICK_STREAM_KEY}")
+        STREAMS+=("[f=flv:onfail=ignore]${KICK_STREAM_URL}:443/app/${KICK_STREAM_KEY}")
     fi
 
     if [ ${#STREAMS[@]} -eq 0 ]; then
@@ -48,7 +48,8 @@ stream_videos() {
               -c:v copy -tag:v 7 \
               -bsf:v h264_mp4toannexb \
               -c:a copy \
-              -f flv "$TWITCH_URL" # Or test directly without tee first
+              -flvflags no_duration_filesize \
+              -f tee "$TEE_TARGETS"
         done
 
         echo "Finished video playlist loop. Restarting sequence in 2 seconds..."
